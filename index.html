@@ -2203,7 +2203,8 @@
         { id: "gold", name: "Gold + Crown 👑", swatch: "#d9a81f", hoodie: "#d9a81f", face: "classic", shades: false, accessory: "crown", cost: 467, unlockLevel: 14 },
         { id: "stormcar", name: "Storm-Chaser Car 🌪️", swatch: "#33373e", hoodie: "#4a4f57", face: "classic", shades: false, accessory: "stormcar", cost: 1000, unlockLevel: 15 },
         { id: "stormgold", name: "Golden Storm-Car 🏆", swatch: "#d9a81f", hoodie: "#4a4f57", face: "classic", shades: false, accessory: "stormcar", gold: true, allStars: true, cost: 0, unlockLevel: 0 },
-        { id: "centurion", name: "Centurion 100 🏅", swatch: "#f2c230", hoodie: "#232327", face: "classic", shades: false, accessory: "medal100", cost: 0, unlockLevel: 0, endless100: true }
+        { id: "centurion", name: "Centurion 100 🏅", swatch: "#f2c230", hoodie: "#232327", face: "classic", shades: false, accessory: "medal100", cost: 0, unlockLevel: 0, endless100: true },
+        { id: "tututornado", name: "Tutu Tornado 🌪️", swatch: "#454b53", hoodie: "#3a3f46", face: "classic", shades: false, accessory: "tornado", cost: 0, unlockLevel: 0, giftOnly: true, hidden: true }
       ];
       /* the Centurion is the ONE skin with no shortcut: no coin
          price, no early-buy, no level unlock — reach 100 in
@@ -2215,7 +2216,7 @@
         unlockedSkins["centurion"] = true;
         if (announce) { showBanner("100!! CENTURION UNLOCKED!", "the medal skin is yours — no shortcut existed", 2800); sndCeleb(); }
       }
-      function skinProgressMet(sk) { if (sk.endless100) return false; if (sk.allStars) return false; return !sk.unlockLevel || levelStars[sk.unlockLevel - 1] > 0; }
+      function skinProgressMet(sk) { if (sk.giftOnly) return false; if (sk.endless100) return false; if (sk.allStars) return false; return !sk.unlockLevel || levelStars[sk.unlockLevel - 1] > 0; }
       var unlockedSkins = { classic: true };
       var currentSkin = SKINS[0];
       var bestStageSession = 1;
@@ -2337,6 +2338,7 @@
         grid.innerHTML = "";
         SKINS.forEach(function (sk) {
           var unlocked = !!unlockedSkins[sk.id];
+          if (sk.hidden && !unlocked) return; // gift skins stay invisible until their code lands
           var card = document.createElement("button");
           card.type = "button";
           card.className = "skinCard" + (currentSkin.id === sk.id ? " selected" : "") + (unlocked ? "" : " locked");
@@ -2366,6 +2368,10 @@
         }
         if (sk.endless100 && !unlockedSkins[sk.id]) {
           msg.textContent = t("centurionNoMsg");
+          return;
+        }
+        if (sk.giftOnly && !unlockedSkins[sk.id]) {
+          msg.textContent = "🎁 a gift skin — only its own code unlocks it.";
           return;
         }
         if (unlockedSkins[sk.id]) {
@@ -2416,6 +2422,7 @@
         var sk = svSkin, unlocked = !!unlockedSkins[sk.id];
         if (sk.allStars && !unlocked) return { tag: t("goldNoMsg"), action: "" };
         if (sk.endless100 && !unlocked) return { tag: t("centurionNoMsg"), action: "" };
+        if (sk.giftOnly && !unlocked) return { tag: "🎁 a gift skin — only its own code unlocks it.", action: "" };
         if (currentSkin.id === sk.id) return { tag: tf("skinOnMsg", { n: sk.name }), action: "" };
         if (unlocked || skinProgressMet(sk)) return { tag: "", action: t("wearIt") };
         return { tag: tf("skinLockedTag", { l: sk.unlockLevel, c: sk.cost }), action: tf("buyIt", { c: sk.cost }) };
@@ -3383,6 +3390,58 @@
         ctx.strokeStyle = ink; ctx.lineWidth = 1.6;
         inkLine(6, 40, 4, 47, 32); inkLine(12, 40, 13, 47, 33);
 
+        // TUTU TORNADO COSTUME — GIFT-ONLY (2026-11-22): he IS the
+        // tornado — a big graphite funnel swallows the body, spiral
+        // bands wrap it, debris rides the swirl and a dark band
+        // carries the "tutu" stencil. Drawn BEFORE the head, like
+        // the storm-car, so his face pops out of the top of the
+        // funnel. Hidden skin: only its gift code unlocks it.
+        if (currentSkin.accessory === "tornado") {
+          ctx.save();
+          ctx.lineJoin = "round"; ctx.lineCap = "round";
+          // funnel silhouette: wide rim under the chin, tapering to a point
+          ctx.fillStyle = "#454b53"; ctx.strokeStyle = ink; ctx.lineWidth = 2.6;
+          ctx.beginPath();
+          ctx.moveTo(-60, 14);
+          ctx.quadraticCurveTo(-52, 44, -26, 66);
+          ctx.quadraticCurveTo(-10, 79, 0, 90);
+          ctx.quadraticCurveTo(10, 79, 26, 66);
+          ctx.quadraticCurveTo(52, 44, 60, 14);
+          ctx.closePath(); ctx.fill(); ctx.stroke();
+          // top rim
+          ctx.fillStyle = "#565d66";
+          ctx.beginPath(); ctx.ellipse(0, 14, 60, 10, 0, 0, Math.PI * 2); ctx.fill(); ctx.stroke();
+          // spiral bands following the taper
+          ctx.strokeStyle = "rgba(20,20,22,.65)"; ctx.lineWidth = 2.2;
+          ctx.beginPath(); ctx.moveTo(-54, 30); ctx.quadraticCurveTo(0, 40, 54, 30); ctx.stroke();
+          ctx.beginPath(); ctx.moveTo(-38, 62); ctx.quadraticCurveTo(0, 70, 38, 62); ctx.stroke();
+          ctx.beginPath(); ctx.moveTo(-24, 76); ctx.quadraticCurveTo(0, 82, 24, 76); ctx.stroke();
+          // light swirl streaks
+          ctx.strokeStyle = "rgba(245,245,242,.5)"; ctx.lineWidth = 2;
+          ctx.beginPath(); ctx.moveTo(-46, 22); ctx.quadraticCurveTo(-10, 30, 30, 24); ctx.stroke();
+          ctx.beginPath(); ctx.moveTo(-30, 52); ctx.quadraticCurveTo(4, 59, 34, 50); ctx.stroke();
+          // dark band with the "tutu" stencil
+          ctx.fillStyle = "#23262b"; ctx.strokeStyle = ink; ctx.lineWidth = 2;
+          ctx.beginPath();
+          ctx.moveTo(-49, 40); ctx.quadraticCurveTo(0, 49, 49, 40);
+          ctx.lineTo(44, 55); ctx.quadraticCurveTo(0, 63, -44, 55);
+          ctx.closePath(); ctx.fill(); ctx.stroke();
+          ctx.fillStyle = "#f5f5f2";
+          ctx.font = "800 15px Arial, sans-serif"; ctx.textAlign = "left"; ctx.textBaseline = "middle";
+          var uch = ["t", "u", "t", "u"], uwd = 0, uci, ucj, ux0;
+          for (uci = 0; uci < 4; uci++) uwd += ctx.measureText(uch[uci]).width + 1.4;
+          ux0 = -uwd / 2;
+          for (ucj = 0; ucj < 4; ucj++) { ctx.fillText(uch[ucj], ux0, 51); ux0 += ctx.measureText(uch[ucj]).width + 1.4; }
+          // debris riding the swirl: a roof, a warning sign, a leaf
+          ctx.fillStyle = "#8f959d"; ctx.strokeStyle = ink; ctx.lineWidth = 2;
+          ctx.beginPath(); ctx.moveTo(-72, 34); ctx.lineTo(-60, 24); ctx.lineTo(-48, 34); ctx.closePath(); ctx.fill(); ctx.stroke();
+          ctx.fillStyle = "#f2c230";
+          ctx.fillRect(56, 44, 13, 9); ctx.strokeRect(56, 44, 13, 9);
+          ctx.strokeStyle = "#2e7d4f"; ctx.lineWidth = 2;
+          ctx.beginPath(); ctx.ellipse(-52, 62, 6, 3.4, -0.6, 0, Math.PI * 2); ctx.stroke();
+          ctx.restore();
+        }
+
         // STORM-CHASER CAR COSTUME — TIV REDRAW (Fabricio's photo,
         // 2026-11-15): a low armoured wedge in graphite steel like
         // the real Tornado Intercept Vehicle — ground skirt, anchor
@@ -3580,6 +3639,18 @@
             ctx.beginPath(); ctx.arc(-47, -90, 2, 0, Math.PI * 2); ctx.fill();
             ctx.fillStyle = "#e23b2e"; ctx.strokeStyle = ink; ctx.lineWidth = 2;
             ctx.beginPath(); ctx.arc(34, -64, 4, 0, Math.PI * 2); ctx.fill(); ctx.stroke();
+            ctx.restore();
+          } else if (acc === "tornado") {
+            // TUTU TORNADO: one WRONG-RED warning flag on a pole,
+            // planted at the top of the funnel, waving hard
+            ctx.save();
+            ctx.strokeStyle = ink; ctx.lineWidth = 2.6;
+            ctx.beginPath(); ctx.moveTo(50, -18); ctx.lineTo(50, -72); ctx.stroke();
+            ctx.fillStyle = "#e23b2e"; ctx.lineWidth = 2;
+            ctx.beginPath();
+            ctx.moveTo(50, -72); ctx.quadraticCurveTo(62, -68, 74, -71);
+            ctx.quadraticCurveTo(63, -62, 50, -58);
+            ctx.closePath(); ctx.fill(); ctx.stroke();
             ctx.restore();
           } else if (acc === "medal100") {
             // CENTURION: golden laurels hugging the head + a huge
@@ -7327,13 +7398,14 @@
          equipped on the spot; journey stars are never touched. */
       var RESCUE_KEY = "wuRescueV1";
       var RESCUE_GRANTS = {
-        "1174039169": { coins: 600, skin: "stormcar" } // tester grant, 2026-11-15: 600 coins + Storm-Chaser, no levels
+        "1174039169": { coins: 600, skin: "stormcar" }, // tester grant, 2026-11-15: 600 coins + Storm-Chaser, no levels
+        "4094840334": { coins: 0, skin: "tututornado" } // gift grant, 2026-11-22: the one-and-only Tutu Tornado skin
       };
       var RESCUE_TXT = {
-        en: { ok: "🎁 Rescue landed: +{c} coins — and the {s} is yours again!", used: "That rescue code was already used on this device.", bad: "Hmm — that code doesn't ring a bell. Check it and try again.", ask: "Type your rescue code:" },
-        pt: { ok: "🎁 Resgate feito: +{c} moedas — e o {s} é seu de novo!", used: "Esse código de resgate já foi usado neste aparelho.", bad: "Hmm — esse código não confere. Confere as letras e tenta de novo.", ask: "Digite seu código de resgate:" },
-        es: { ok: "🎁 Rescate listo: +{c} monedas — ¡y el {s} es tuyo otra vez!", used: "Ese código de rescate ya se usó en este dispositivo.", bad: "Mmm — ese código no suena. Revísalo e inténtalo de nuevo.", ask: "Escribe tu código de rescate:" },
-        ja: { ok: "🎁 レスキュー完了：+{c}コイン — {s} が戻ってきた！", used: "そのレスキューコードはこの端末で使用済みです。", bad: "うーん、そのコードは違います。確認してもう一度どうぞ。", ask: "レスキューコードを入力：" }
+        en: { ok: "🎁 Rescue landed: +{c} coins — and the {s} is yours again!", okSkin: "🎁 A gift for you: the {s} is yours — yours only!", used: "That rescue code was already used on this device.", bad: "Hmm — that code doesn't ring a bell. Check it and try again.", ask: "Type your rescue code:" },
+        pt: { ok: "🎁 Resgate feito: +{c} moedas — e o {s} é seu de novo!", okSkin: "🎁 Presente pra você: a skin {s} é sua — só sua!", used: "Esse código de resgate já foi usado neste aparelho.", bad: "Hmm — esse código não confere. Confere as letras e tenta de novo.", ask: "Digite seu código de resgate:" },
+        es: { ok: "🎁 Rescate listo: +{c} monedas — ¡y el {s} es tuyo otra vez!", okSkin: "🎁 Un regalo para ti: la skin {s} es tuya — ¡solo tuya!", used: "Ese código de rescate ya se usó en este dispositivo.", bad: "Mmm — ese código no suena. Revísalo e inténtalo de nuevo.", ask: "Escribe tu código de rescate:" },
+        ja: { ok: "🎁 レスキュー完了：+{c}コイン — {s} が戻ってきた！", okSkin: "🎁 プレゼント：スキン「{s}」はあなたのもの — あなただけの！", used: "そのレスキューコードはこの端末で使用済みです。", bad: "うーん、そのコードは違います。確認してもう一度どうぞ。", ask: "レスキューコードを入力：" }
       };
       function rescueUsedList() {
         try { var u = JSON.parse(window.localStorage.getItem(RESCUE_KEY) || "[]"); return Array.isArray(u) ? u : []; } catch (e) { return []; }
@@ -7363,7 +7435,8 @@
           for (var i = 0; i < SKINS.length; i++) if (SKINS[i].id === g.skin) { currentSkin = SKINS[i]; skinName = SKINS[i].name; }
         }
         refreshSkins(); refreshWallet(); updateHud(); saveGame();
-        rescueBanner(T.ok.replace("{c}", g.coins).replace("{s}", skinName || "skin"));
+        var okTpl = g.coins > 0 ? T.ok : (T.okSkin || T.ok);
+        rescueBanner(okTpl.replace("{c}", g.coins).replace("{s}", skinName || "skin"));
       }
       function applyRescueFromUrl() {
         try {
